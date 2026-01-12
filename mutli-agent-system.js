@@ -2,6 +2,7 @@ import "dotenv/config";
 import { Agent , run , tool} from "@openai/agents"
 import {z} from "zod"
 import fs from "node:fs/promises"
+import { RECOMMENDED_PROMPT_PREFIX } from '@openai/agents-core/extensions';
 
 
 const availablePlans = tool({
@@ -46,10 +47,15 @@ const salesAgent = new Agent({
 
 const refundAgent = new Agent({
     name: "Refund Agent",
-    instructions: "You are a refund agent that will help user get their refund. If the user asks about sales or available, hand off to the sales agent.",
+    instructions: `
+    ${RECOMMENDED_PROMPT_PREFIX}
+    You are a refund agent that will help user get their refund. If the user asks about sales or available, hand off to the sales agent.`, //explicitly mention the word 'handoffs' important
     model: "gpt-4o-mini",
     tools: [processRefund],
-    handoffs: [salesAgent]
+    handoffs: [salesAgent],
+    handoffDescription: `There one agent here that can be used to handoff.
+    1. Sales Agent - Agent that is expert in telling the user about the availbale plans
+    `
 })
 
 
